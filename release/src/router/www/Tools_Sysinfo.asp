@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <html xmlns:v>
 <head>
-<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7"/>
+<meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta HTTP-EQUIV="Pragma" CONTENT="no-cache">
 <meta HTTP-EQUIV="Expires" CONTENT="-1">
@@ -38,6 +38,7 @@ hwacc_force = "<% nvram_get("ctf_disable_force"); %>";
 arplist = [<% get_arp_table(); %>];
 etherstate = "<% sysinfo("ethernet"); %>";
 odmpid = "<% nvram_get("odmpid");%>";
+ctf_fa = "<% nvram_get("ctf_fa_mode"); %>";
 
 var $j = jQuery.noConflict();
 
@@ -113,7 +114,14 @@ function hwaccel_state(){
 			code = code.slice(0,-2) + "</span></>";
 		}
 	} else if (hwacc == "0") {
-		code = "<span>Enabled</span>";
+		code = "<span>Enabled";
+		if (ctf_fa != "") {
+                        if (ctf_fa != "0")
+                                code += " (CTF + FA)";
+                        else
+                                code += " (CTF only)";
+                }
+		code += "</span>";
 	} else {
 		code = "<span>N/A</span>";
 	}
@@ -147,10 +155,8 @@ function show_etherstate(){
 	var entry;
 
 	var t = etherstate.split('>');
-
 	for (var i = 0; i < t.length; ++i) {
 		var line = t[i].split(/[\s]+/);
-
 		if (line[11])
 			devicemac = line[11].toUpperCase();
 		else
@@ -183,15 +189,22 @@ function show_etherstate(){
 			tmpPort = line[1].replace(":","");
 
 			if (tmpPort == "8") {		// CPU Port
-				break;
+				continue;
 			} else if (based_modelid == "RT-AC56U") {
 				tmpPort++;		// Port starts at 0
 				if (tmpPort == "5") tmpPort = 0;	// Last port is WAN
-			}                                                                                                                                                         
+			} else if (based_modelid == "RT-AC87U") {
+				if (tmpPort == "4")
+					continue;	// This is the internal LAN port
+				if (tmpPort == "5") {
+					tmpPort = "4";	// This is the LAN 4 port from QTN
+					devicename = '<span class="ClientName">&lt;unknown&gt;</span>';
+				}
+			}
 			if (tmpPort == "0") {
 				port = "WAN";
 			} else {
-				if (based_modelid == "RT-N16") tmpPort = 5 - tmpPort;
+				if ((based_modelid == "RT-N16") || (based_modelid == "RT-AC87U"))  tmpPort = 5 - tmpPort;
 				port = "LAN "+tmpPort;
 			}
 			entry = '<tr><td>' + port + '</td><td>' + (line[7] & 0xFFF) + '</td><td><span>' + state2 + '</span></td>';

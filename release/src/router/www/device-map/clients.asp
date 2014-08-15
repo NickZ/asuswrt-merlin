@@ -98,7 +98,7 @@ function drawClientList(tab){
 		clientHtmlTd += clientObj.mac;
 		clientHtmlTd += '\');return overlib(\'';
 		clientHtmlTd += retOverLibStr(clientObj);
-		clientHtmlTd += '\');" onmouseout="nd();">';
+		clientHtmlTd += '\', HAUTO, VAUTO);" onmouseout="nd();">';
 		clientHtmlTd += clientObj.mac;
 		clientHtmlTd += '</td></tr></table></div>';
 		i++;
@@ -116,7 +116,7 @@ function drawClientList(tab){
 	document.getElementById("client_list_Block").innerHTML = clientHtml;
 
 	document.getElementById("leftBtn").style.visibility = (pagesVar.startIndex == 0) ? "hidden" : "visible";
-	document.getElementById("rightBtn").style.visibility = (pagesVar.endIndex > clientList.length) ? "hidden" : "visible";
+	document.getElementById("rightBtn").style.visibility = (pagesVar.endIndex >= clientList.length) ? "hidden" : "visible";
 
 	document.getElementById("tabWired").style.display = (totalClientNum.wired == 0)? "none" : "";
 	document.getElementById("tabWiredNum").innerHTML = 	totalClientNum.wired;
